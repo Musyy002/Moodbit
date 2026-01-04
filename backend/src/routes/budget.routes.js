@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 const router = express.Router();
 
-// ➕ Set / Update budget
+//Set / Update budget
 router.post("/", requireAuth, async (req, res) => {
   const { userId } = req.auth;
   const { monthlyLimit } = req.body;
@@ -28,7 +28,7 @@ router.post("/", requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
-// 📄 Get budget
+// Get budget
 router.get("/", requireAuth, async (req, res) => {
   const { userId } = req.auth;
 

@@ -26,7 +26,7 @@ export default function Dashboard() {
   const [healthScore, setHealthScore] = useState(0);
   const [predictedSpend, setPredictedSpend] = useState(0);
 
-  // 🔹 Phase 2: Sync user (DO NOT REMOVE)
+  //Sync user
   useEffect(() => {
     if (!isLoaded || !user) return;
 
@@ -47,7 +47,7 @@ export default function Dashboard() {
     syncUser();
   }, [isLoaded, user]);
 
-  // 🔹 Fetch expenses
+  //Fetch expenses
   useEffect(() => {
     if (!isLoaded || !user) return;
 
@@ -67,7 +67,8 @@ export default function Dashboard() {
     fetchExpenses();
   }, [isLoaded, user]);
 
-  // 🔹 Fetch budget
+
+  //Fetch budget
   useEffect(() => {
     if (!isLoaded || !user) return;
 
@@ -84,7 +85,7 @@ export default function Dashboard() {
     fetchBudget();
   }, [isLoaded, user]);
 
-  // 🔹 Calculate health score
+  //Calculate health score
   useEffect(() => {
     if (!budget || expenses.length === 0) return;
 
@@ -97,7 +98,32 @@ export default function Dashboard() {
     setHealthScore(score);
   }, [budget, expenses, totalSpent]);
 
-  // 🔹 Forecast spending
+  //Update gamification stats (XP, badges)
+  useEffect(() => {
+  if (!budget || expenses.length === 0) return;
+
+  const updateStats = async () => {
+    const token = await getToken();
+
+    await fetch("http://localhost:5000/api/stats/xp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        xp: 20, // base XP for activity
+        saver: totalSpent <= budget,
+        happy: healthScore > 70,
+      }),
+    });
+  };
+
+  updateStats();
+}, [budget, expenses, healthScore, totalSpent]);
+
+
+  //Forecast spending
   useEffect(() => {
     if (expenses.length === 0) return;
 

@@ -5,7 +5,7 @@ export function calculateHealthScore({
   }) {
     let score = 0;
   
-    // 1️⃣ Budget Discipline (50)
+    //Budget Discipline (50)
     if (!budget) score += 0;
     else {
       const percent = totalSpent / budget;
@@ -15,7 +15,7 @@ export function calculateHealthScore({
       else score += 0;
     }
   
-    // 2️⃣ Expense Frequency (30)
+    // Expense Frequency (30)
     const days = new Set(
       expenses.map((e) =>
         new Date(e.createdAt).toDateString()
@@ -28,7 +28,7 @@ export function calculateHealthScore({
     else if (avgPerDay <= 3) score += 20;
     else score += 10;
   
-    // 3️⃣ Category Balance (20)
+    //Category Balance (20)
     const categoryMap = {};
     expenses.forEach((e) => {
       categoryMap[e.category] =

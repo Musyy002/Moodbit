@@ -22,7 +22,6 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
-  // 🔹 Fetch current budget
   useEffect(() => {
     const fetchBudget = async () => {
       const token = await getToken();
@@ -37,7 +36,6 @@ export default function Settings() {
     fetchBudget();
   }, []);
 
-  // 🔹 Update budget
   const saveBudget = async () => {
     setLoading(true);
     const token = await getToken();
@@ -54,13 +52,11 @@ export default function Settings() {
     setLoading(false);
   };
 
-  // 🔥 Delete profile (DB + Clerk)
   const deleteProfile = async () => {
     try {
       setLoading(true);
       const token = await getToken();
 
-      // 1️⃣ Delete from your DB
       await fetch("http://localhost:5000/api/user/delete", {
         method: "DELETE",
         headers: {
@@ -68,10 +64,8 @@ export default function Settings() {
         },
       });
 
-      // 2️⃣ Delete Clerk account
       await user.delete();
 
-      // 3️⃣ Redirect
       navigate("/");
     } catch (err) {
       console.error(err);
@@ -123,7 +117,6 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* Danger Zone */}
           <Card className="border-red-200">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-lg font-semibold text-red-600">
@@ -147,7 +140,6 @@ export default function Settings() {
         </motion.div>
       </main>
 
-      {/* 🔥 DELETE CONFIRMATION MODAL */}
       <AnimatePresence>
         {showDelete && (
           <motion.div

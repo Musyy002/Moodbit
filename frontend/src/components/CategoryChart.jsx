@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 
 const COLORS = [
-  "#7C3AED", // purple
+  "#7C3AED", 
   "#A855F7",
   "#C084FC",
   "#E9D5FF",

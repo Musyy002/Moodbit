@@ -4,19 +4,49 @@ import {
   Star,
   TrendingUp,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
 
 import DashboardLayout from "./DashboardLayout";
 import Sidebar from "./Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-export default function GamificationPanel({
-  xp = 0,
-  level = 1,
-  badges = [],
-}) {
+export default function GamificationPanel() {
+  const { getToken } = useAuth();
+
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [badges, setBadges] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const token = await getToken();
+      const res = await fetch(
+        "http://localhost:5000/api/stats",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      setXp(data?.xp || 0);
+      setLevel(data?.level || 1);
+      setBadges(data?.badges || []);
+      setLoading(false);
+    };
+
+    fetchStats();
+  }, []);
+
   const xpForNextLevel = level * 100;
-  const progress = Math.min((xp / xpForNextLevel) * 100, 100);
+  const progress = Math.min(
+    (xp / xpForNextLevel) * 100,
+    100
+  );
 
   return (
     <DashboardLayout>
@@ -34,55 +64,70 @@ export default function GamificationPanel({
             <h1 className="text-2xl font-bold">Your Progress</h1>
           </div>
 
-          {/* Level Card */}
-          <Card className="shadow">
-            <CardContent className="p-6 space-y-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-500 text-sm">Current Level</p>
-                  <h2 className="text-3xl font-bold text-blue-600">
-                    Level {level}
-                  </h2>
-                </div>
+          {loading ? (
+            <p className="text-gray-500">
+              Loading your progress...
+            </p>
+          ) : (
+            <>
+              {/* Level Card */}
+              <Card className="shadow">
+                <CardContent className="p-6 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-gray-500 text-sm">
+                        Current Level
+                      </p>
+                      <h2 className="text-3xl font-bold text-blue-600">
+                        Level {level}
+                      </h2>
+                    </div>
 
-                <TrendingUp className="text-blue-400" size={36} />
-              </div>
+                    <TrendingUp
+                      className="text-blue-400"
+                      size={36}
+                    />
+                  </div>
 
-              <div>
-                <p className="text-sm text-gray-500 mb-1">
-                  XP Progress ({xp}/{xpForNextLevel})
-                </p>
-                <Progress value={progress} />
-              </div>
-            </CardContent>
-          </Card>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">
+                      XP Progress ({xp}/{xpForNextLevel})
+                    </p>
+                    <Progress value={progress} />
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Badges */}
-          <Card className="shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-3 text-blue-600">
-                <Star />
-                <h3 className="text-lg font-semibold">Badges Earned</h3>
-              </div>
+              {/* Badges */}
+              <Card className="shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-3 text-blue-600">
+                    <Star />
+                    <h3 className="text-lg font-semibold">
+                      Badges Earned
+                    </h3>
+                  </div>
 
-              {badges.length ? (
-                <div className="flex flex-wrap gap-3">
-                  {badges.map((badge) => (
-                    <span
-                      key={badge}
-                      className="px-4 py-2 rounded-full bg-purple-100 text-blue-700 text-sm font-medium"
-                    >
-                      🏅 {badge}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">
-                  No badges yet — keep tracking your expenses!
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                  {badges.length ? (
+                    <div className="flex flex-wrap gap-3">
+                      {badges.map((badge) => (
+                        <span
+                          key={badge}
+                          className="px-4 py-2 rounded-full bg-purple-100 text-blue-700 text-sm font-medium"
+                        >
+                          🏅 {badge}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">
+                      No badges yet — keep tracking your expenses!
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </>
+          )}
         </motion.div>
       </main>
     </DashboardLayout>

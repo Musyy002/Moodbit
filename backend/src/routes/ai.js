@@ -13,7 +13,7 @@ router.post("/chat", requireAuth, async (req, res) => {
     const { message, context } = req.body;
 
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash", // use a supported model
+        model: "gemini-2.5-flash", 
       });      
 
     const prompt = `

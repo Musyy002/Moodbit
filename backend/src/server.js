@@ -15,7 +15,6 @@ const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
-// 🔴 THIS WAS MISSING OR MISPLACED
 app.use(ClerkExpressWithAuth());
 
 app.use("/api/expenses", expenseRoutes);
@@ -27,11 +26,10 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/ai", aiRoutes);
 
 
-// 🔴 THIS REGISTERS /api/user/*
 app.use("/api/user", userRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Moodbit Budget API running 🚀");
+  res.send("Moodbit Budget API running!");
 });
 
 app.listen(5000, () => {

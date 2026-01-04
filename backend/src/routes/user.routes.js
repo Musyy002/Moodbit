@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 const router = express.Router();
 
 router.post("/sync", requireAuth, async (req, res) => {
-  console.log("✅ /api/user/sync HIT");
+  console.log("API is working!!");
 
   const { userId } = req.auth;
   const { email } = req.body;
@@ -31,12 +31,11 @@ router.delete("/delete", requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
 
-    // 1️⃣ Delete dependent data first
     await db.delete(expenses).where(eq(expenses.userId, userId));
     await db.delete(budgets).where(eq(budgets.userId, userId));
     await db.delete(userStats).where(eq(userStats.userId, userId));
 
-    // 2️⃣ Delete user
+    //Delete user
     await db.delete(users).where(eq(users.id, userId));
 
     res.json({ success: true });

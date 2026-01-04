@@ -4,14 +4,16 @@ import {
     integer,
     timestamp,
   } from "drizzle-orm/pg-core";
-  
+
+//Users Table:
 export const users = pgTable("users", {
-    id: text("id").primaryKey(), // Clerk userId
+    id: text("id").primaryKey(), 
     email: text("email").notNull(),
     createdAt: timestamp("created_at").defaultNow(),
   });
 
-  export const expenses = pgTable("expenses", {
+//Expenses Table:
+export const expenses = pgTable("expenses", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: text("user_id")
       .references(() => users.id)
@@ -22,7 +24,8 @@ export const users = pgTable("users", {
     createdAt: timestamp("created_at").defaultNow(),
   });
 
-  export const budgets = pgTable("budgets", {
+//Budgets Table:
+export const budgets = pgTable("budgets", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: text("user_id")
       .references(() => users.id)
@@ -30,7 +33,8 @@ export const users = pgTable("users", {
     monthlyLimit: integer("monthly_limit").notNull(),
   });
 
-  export const userStats = pgTable("user_stats", {
+//User Stats Table:
+export const userStats = pgTable("user_stats", {
     userId: text("user_id")
       .primaryKey()
       .references(() => users.id),
@@ -43,4 +47,3 @@ export const users = pgTable("users", {
   
     badges: text("badges").array().default([]),
   });
-  

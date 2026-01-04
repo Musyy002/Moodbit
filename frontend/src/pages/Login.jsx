@@ -12,7 +12,7 @@ export default function Login() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl w-full"
       >
-        {/* 🔹 Left Branding Section */}
+        {/* Left Branding Section */}
         <div className="hidden md:flex flex-col justify-center text-white p-8">
           <motion.h1
             initial={{ opacity: 0, x: -30 }}
@@ -33,7 +33,6 @@ export default function Login() {
             Let your finances stay emotionally healthy.
           </motion.p>
 
-          {/* Simple animated orb (visual interest) */}
           <motion.div
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 4 }}
@@ -41,7 +40,7 @@ export default function Login() {
           />
         </div>
 
-        {/* 🔹 Login Card */}
+        {/*Login Card */}
         <Card className="bg-slate-900/80 border-slate-800 shadow-xl">
           <CardContent className="p-6 flex justify-center">
             <SignIn fallbackRedirectUrl="/dashboard" />

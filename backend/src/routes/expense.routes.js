@@ -7,7 +7,7 @@ import { eq, sql } from "drizzle-orm";
 const router = express.Router();
 
 
-// ➕ Add expense
+// Add expense
 router.post("/", requireAuth, async (req, res) => {
   const { userId } = req.auth;
   const { amount, category, note } = req.body;
@@ -23,7 +23,7 @@ router.post("/", requireAuth, async (req, res) => {
 });
 
 
-// 📄 Get user expenses
+// Get user expenses
 router.get("/", requireAuth, async (req, res) => {
   const { userId } = req.auth;
 
@@ -37,7 +37,7 @@ router.get("/", requireAuth, async (req, res) => {
 });
 
 
-// ❌ Delete expense
+// Delete expense
 router.delete("/:id", requireAuth, async (req, res) => {
   const { userId } = req.auth;
   const { id } = req.params;
@@ -49,6 +49,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+//Summary:
 router.get("/summary", requireAuth, async (req, res) => {
     const { userId } = req.auth;
   

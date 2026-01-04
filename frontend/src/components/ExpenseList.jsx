@@ -2,23 +2,22 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { Trash2 } from "lucide-react";
 
-/* 🎨 Nice pastel colors */
+
 const COLORS = [
-  "#fde68a", // yellow
-  "#bfdbfe", // blue
-  "#fecaca", // red
-  "#bbf7d0", // green
-  "#ddd6fe", // purple
-  "#fbcfe8", // pink
+  "#fde68a", 
+  "#bfdbfe", 
+  "#fecaca", 
+  "#bbf7d0", 
+  "#ddd6fe", 
+  "#fbcfe8", 
 ];
 
-/* 🧠 Decide text color based on bg brightness */
 const getTextColor = (hex) => {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  return brightness > 150 ? "#1f2937" : "#ffffff"; // dark gray or white
+  return brightness > 150 ? "#1f2937" : "#ffffff"; 
 };
 
 export default function ExpenseList() {
@@ -36,7 +35,6 @@ export default function ExpenseList() {
 
     const data = await res.json();
 
-    // 🎯 Assign random color ONCE per expense
     const withColors = data.map((e) => {
       const color = COLORS[Math.floor(Math.random() * COLORS.length)];
       return {

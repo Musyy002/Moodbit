@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 
 export default function BudgetCard({ totalSpent, budget, setBudget }) {
-    // remove internal fetchBudget logic
   
     const [input, setInput] = useState("");
   
@@ -26,7 +25,7 @@ export default function BudgetCard({ totalSpent, budget, setBudget }) {
   
     return (
       <div className="bg-blue-800 p-4 rounded-xl text-white shadow-xl">
-        <h2 className="text-2xl mb-2">MONTHLY BUDGET</h2>
+        <h2 className="text-2xl mb-2"><b>MONTHLY BUDGET</b></h2>
   
         {budget ? (
           <>

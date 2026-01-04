@@ -33,7 +33,7 @@ export default function AddExpense() {
       }),
     });
 
-    navigate("/dashboard"); // 👈 Go back to dashboard
+    navigate("/dashboard"); 
   };
 
   return (
