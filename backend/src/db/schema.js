@@ -16,8 +16,8 @@ export const users = pgTable("users", {
 export const expenses = pgTable("expenses", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: text("user_id")
-      .references(() => users.id)
-      .notNull(),
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
     amount: integer("amount").notNull(),
     category: text("category").notNull(),
     note: text("note"),
@@ -28,8 +28,8 @@ export const expenses = pgTable("expenses", {
 export const budgets = pgTable("budgets", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: text("user_id")
-      .references(() => users.id)
-      .notNull(),
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
     monthlyLimit: integer("monthly_limit").notNull(),
   });
 
@@ -37,7 +37,8 @@ export const budgets = pgTable("budgets", {
 export const userStats = pgTable("user_stats", {
     userId: text("user_id")
       .primaryKey()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
   
     xp: integer("xp").default(0),
     level: integer("level").default(1),
@@ -47,3 +48,15 @@ export const userStats = pgTable("user_stats", {
   
     badges: text("badges").array().default([]),
   });
+
+
+export const userIncome = pgTable("user_income", {
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull().unique(),
+  
+    amount: integer("amount").notNull(),
+    source: text("source"),
+    frequency: text("frequency"),
+  });
+  

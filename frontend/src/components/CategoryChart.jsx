@@ -34,7 +34,7 @@ export default function CategoryChart({ expenses }) {
 
   return (
     <div className="bg-white rounded-xl shadow p-4">
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">
+      <h2 className="text-lg font-semibold text-blue-700 mb-2">
         Spending by Category
       </h2>
 

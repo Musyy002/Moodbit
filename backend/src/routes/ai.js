@@ -20,6 +20,7 @@ router.post("/chat", requireAuth, async (req, res) => {
 You are Moodbit, a friendly financial assistant.
 
 User data:
+- Income: ${context.income}
 - Budget: ${context.budget}
 - Total Spent: ${context.totalSpent}
 - Health Score: ${context.healthScore}

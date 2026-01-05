@@ -1,8 +1,21 @@
 import { SignIn } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import { useEffect } from "react";
 
 export default function Login() {
+
+  const { isSignedIn } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isSignedIn]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-black flex items-center justify-center px-4">
       

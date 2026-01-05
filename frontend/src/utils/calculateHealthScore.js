@@ -9,9 +9,9 @@ export function calculateHealthScore({
     if (!budget) score += 0;
     else {
       const percent = totalSpent / budget;
-      if (percent <= 0.5) score += 50;
-      else if (percent <= 0.8) score += 40;
-      else if (percent <= 1) score += 25;
+      if (percent <= 0.4) score += 50;
+      else if (percent <= 0.6) score += 40;
+      else if (percent <= 0.8) score += 25;
       else score += 0;
     }
   

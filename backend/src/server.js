@@ -9,6 +9,7 @@ import expenseRoutes from "./routes/expense.routes.js";
 import budgetRoutes from "./routes/budget.routes.js";
 import statsRoutes from "./routes/stats.js";
 import aiRoutes from "./routes/ai.js"
+import incomeRoutes from "./routes/income.js";
 
 const app = express();
 
@@ -31,6 +32,8 @@ app.use("/api/budget", budgetRoutes);
 app.use("/api/stats", statsRoutes);
 
 app.use("/api/ai", aiRoutes);
+
+app.use("/api/income", incomeRoutes);
 
 
 app.use("/api/user", userRoutes);

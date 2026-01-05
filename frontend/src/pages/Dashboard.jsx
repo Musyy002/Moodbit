@@ -9,6 +9,10 @@ import CategoryChart from "../components/CategoryChart";
 import ExpenseList from "../components/ExpenseList";
 import ForecastCard from "../components/ForecastCard";
 import MoodbitChat from "../components/MoodbitChat";
+import IncomeExpenseChart from "../components/IncomeExpenseChart";
+import { aiForecast } from "@/utils/aiForecast";
+import { CalendarDays, Calendar, BarChart3 } from "lucide-react";
+
 
 import DashboardLayout from "../components/DashboardLayout";
 import Sidebar from "../components/Sidebar";
@@ -22,9 +26,19 @@ export default function Dashboard() {
 
   const [expenses, setExpenses] = useState([]);
   const [totalSpent, setTotalSpent] = useState(0);
+  const [forecast, setForecast] = useState({
+    weekly: null,
+    monthly: null,
+    yearly: null,
+    insight: "",
+    reliability: "",
+  });  
+  
   const [budget, setBudget] = useState(null);
   const [healthScore, setHealthScore] = useState(0);
+  
   const [predictedSpend, setPredictedSpend] = useState(0);
+  const [income, setIncome] = useState(0);
 
   //Sync user
   useEffect(() => {
@@ -46,6 +60,24 @@ export default function Dashboard() {
 
     syncUser();
   }, [isLoaded, user]);
+
+  // 🔹 Fetch income
+    useEffect(() => {
+      if (!isLoaded || !user) return;
+
+      const fetchIncome = async () => {
+        const token = await getToken();
+        const res = await fetch("http://localhost:5000/api/income", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        setIncome(data?.amount || null);
+      };
+
+      fetchIncome();
+    }, [isLoaded, user]);
+
 
   //Fetch expenses
   useEffect(() => {
@@ -125,11 +157,34 @@ export default function Dashboard() {
 
   //Forecast spending
   useEffect(() => {
-    if (expenses.length === 0) return;
-
-    const prediction = predictMonthlySpend(expenses);
-    setPredictedSpend(prediction);
-  }, [expenses]);
+    if (!budget || expenses.length === 0) return;
+  
+    const budgetUsedRatio = totalSpent / budget;
+  
+    const shouldPredict =
+      expenses.length >= 5 || budgetUsedRatio >= 0.5;
+  
+    if (!shouldPredict) {
+      setForecast({
+        weekly: null,
+        monthly: null,
+        yearly: null,
+        insight: "Add more expenses to unlock AI predictions",
+        reliability: "Low",
+      });
+      return;
+    }
+  
+    const runForecast = async () => {
+      const result = await aiForecast(expenses, budget);
+  
+      setForecast(result);
+    };
+  
+    runForecast();
+  }, [expenses, budget, totalSpent]);
+  
+  
 
   return (
     <DashboardLayout>
@@ -143,6 +198,7 @@ export default function Dashboard() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           <BudgetCard
+            income={income}
             budget={budget}
             totalSpent={totalSpent}
           />
@@ -159,14 +215,41 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <CategoryChart expenses={expenses} />
           <ExpenseList expenses={expenses} />
+          <IncomeExpenseChart
+            income={income}
+            totalSpent={totalSpent}
+          />
         </div>
 
         {/* Forecast */}
+        {/* Forecast Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <ForecastCard
-            predictedSpend={predictedSpend}
-            budget={budget}
+            title="Weekly Forecast"
+            amount={forecast.weekly}
+            budget={budget ? budget / 4 : null}
+            insight={forecast.insight}
+            reliability={forecast.reliability}
+            icon={CalendarDays}
           />
 
+          <ForecastCard
+            title="Monthly Forecast"
+            amount={forecast.monthly}
+            budget={budget}
+            insight={forecast.insight}
+            reliability={forecast.reliability}
+            icon={Calendar}
+          />
+
+          <ForecastCard
+            title="Yearly Projection"
+            amount={forecast.yearly}
+            insight={forecast.insight}
+            reliability={forecast.reliability}
+            icon={BarChart3}
+          />
+        </div>
 
         {/* Footer */}
         <footer className="text-center text-sm text-gray-400 pt-6">
