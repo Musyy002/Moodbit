@@ -3,13 +3,13 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import userRoutes from "./routes/user.routes.js";
+import userRoutes from "./src/routes/user.routes.js";
 import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
-import expenseRoutes from "./routes/expense.routes.js";
-import budgetRoutes from "./routes/budget.routes.js";
-import statsRoutes from "./routes/stats.js";
-import aiRoutes from "./routes/ai.js"
-import incomeRoutes from "./routes/income.js";
+import expenseRoutes from "./src/routes/expense.routes.js";
+import budgetRoutes from "./src/routes/budget.routes.js";
+import statsRoutes from "./src/routes/stats.js";
+import aiRoutes from "./src/routes/ai.js"
+import incomeRoutes from "./src/routes/income.js";
 
 const app = express();
 

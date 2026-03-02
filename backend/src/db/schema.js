@@ -2,7 +2,7 @@ import {
     pgTable,
     text,
     integer,
-    timestamp,
+    timestamp, boolean
   } from "drizzle-orm/pg-core";
 
 //Users Table:
@@ -22,6 +22,7 @@ export const expenses = pgTable("expenses", {
     category: text("category").notNull(),
     note: text("note"),
     createdAt: timestamp("created_at").defaultNow(),
+    isDeleted: boolean("is_deleted").default(false)
   });
 
 //Budgets Table:

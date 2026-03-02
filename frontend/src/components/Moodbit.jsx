@@ -44,7 +44,7 @@ export default function MoodBit({ totalSpent, budget }) {
     }
   
     return (
-      <div className="p-4 shadow-xl rounded-xl text-center text-blue-800" style={{backgroundColor: "#EAEAEC"}}>
+      <div className="p-4 shadow-xl rounded-xl text-center text-blue-800">
         <div><h2 className="text-lg font-semibold">
           Your MoodBit: 
         </h2> </div>

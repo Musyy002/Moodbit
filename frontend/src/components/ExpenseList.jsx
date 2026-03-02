@@ -1,114 +1,187 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
+import { motion } from "framer-motion";
 
-const COLORS = [
-  "#fde68a",
-  "#bfdbfe",
-  "#fecaca",
-  "#bbf7d0",
-  "#ddd6fe",
-  "#fbcfe8",
+/* ---------- Constants ---------- */
+const CATEGORY_OPTIONS = [
+  "Food",
+  "Travel",
+  "Shopping",
+  "Rent",
+  "Entertainment",
+  "Health",
+  "Education",
+  "Other",
 ];
 
-const getTextColor = (hex) => {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  return brightness > 150 ? "#1f2937" : "#ffffff";
-};
+const PASTEL_COLORS = [
+  "bg-yellow-100",
+  "bg-blue-100",
+  "bg-green-100",
+  "bg-pink-100",
+  "bg-purple-100",
+  "bg-orange-100",
+];
 
-export default function ExpenseList() {
-  const { getToken } = useAuth();
-  const [expenses, setExpenses] = useState([]);
+/* ---------- Edit Modal ---------- */
+function EditExpenseGroupModal({
+  category,
+  total,
+  onClose,
+  onSave,
+}) {
+  const [newCategory, setNewCategory] = useState(category);
+  const [customCategory, setCustomCategory] = useState("");
+  const [newAmount, setNewAmount] = useState(total);
 
-  const fetchExpenses = async () => {
-    const token = await getToken();
-
-    const res = await fetch("http://localhost:5000/api/expenses", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const data = await res.json();
-
-    // 🔹 GROUP BY CATEGORY
-    const grouped = {};
-
-    data.forEach((e) => {
-      if (!grouped[e.category]) {
-        grouped[e.category] = {
-          total: 0,
-          ids: [],
-        };
-      }
-      grouped[e.category].total += e.amount;
-      grouped[e.category].ids.push(e.id);
-    });
-
-    // 🔹 FORMAT FOR UI
-    const formatted = Object.entries(grouped).map(
-      ([category, value], index) => {
-        const color = COLORS[index % COLORS.length];
-        return {
-          category,
-          amount: value.total,
-          ids: value.ids,
-          bgColor: color,
-          textColor: getTextColor(color),
-        };
-      }
-    );
-
-    setExpenses(formatted);
-  };
-
-  // 🗑 Delete all expenses of a category
-  const deleteCategory = async (ids) => {
-    const token = await getToken();
-
-    await Promise.all(
-      ids.map((id) =>
-        fetch(`http://localhost:5000/api/expenses/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-      )
-    );
-
-    fetchExpenses();
-  };
-
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
+  const finalCategory =
+    newCategory === "Other" ? customCategory.trim() : newCategory;
 
   return (
-    <div className="mt-4 space-y-3">
-      {expenses.map((e) => (
-        <div
-          key={e.category}
-          style={{
-            backgroundColor: e.bgColor,
-            color: e.textColor,
-          }}
-          className="flex justify-between items-center p-3 rounded-lg shadow-sm"
-        >
-          <span className="font-medium">
-            {e.category} – ₹{e.amount}
-          </span>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white rounded-lg p-5 w-full max-w-sm space-y-4"
+      >
+        <h3 className="font-semibold text-lg">Edit Expense Group</h3>
 
+        {/* Category */}
+        <select
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          className="w-full border rounded p-2"
+        >
+          {CATEGORY_OPTIONS.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+
+        {newCategory === "Other" && (
+          <input
+            placeholder="Custom category"
+            value={customCategory}
+            onChange={(e) => setCustomCategory(e.target.value)}
+            className="w-full border rounded p-2"
+          />
+        )}
+
+        {/* Amount */}
+        <input
+          type="number"
+          value={newAmount}
+          onChange={(e) => setNewAmount(Number(e.target.value))}
+          className="w-full border rounded p-2"
+          placeholder="Total amount"
+        />
+
+        <div className="flex justify-end gap-2">
+          <button onClick={onClose} className="px-3 py-1 border rounded">
+            Cancel
+          </button>
           <button
-            onClick={() => deleteCategory(e.ids)}
-            title="Delete category expenses"
-            className="hover:opacity-70 transition"
+            onClick={() => onSave(finalCategory, newAmount)}
+            className="px-3 py-1 bg-blue-600 text-white rounded"
           >
-            <Trash2 size={18} />
+            Save
           </button>
         </div>
-      ))}
+      </motion.div>
     </div>
+  );
+}
+
+/* ---------- Dashboard Expense List ---------- */
+export default function ExpenseList({ expenses }) {
+  const { getToken } = useAuth();
+  const [grouped, setGrouped] = useState({});
+  const [editing, setEditing] = useState(null);
+
+  /* ---------- Grouping ---------- */
+  useEffect(() => {
+    const map = {};
+
+    expenses.forEach((e) => {
+      if (e.isDeleted) return;
+
+      if (!map[e.category]) {
+        map[e.category] = { total: 0, ids: [] };
+      }
+      map[e.category].total += Number(e.amount);
+      map[e.category].ids.push(e.id);
+    });
+
+    setGrouped(map);
+  }, [expenses]);
+
+  /* ---------- Save Edit ---------- */
+  const saveEdit = async (newCategory, newAmount) => {
+    const token = await getToken();
+    const { category, ids, total } = editing;
+
+    const ratio = newAmount / total;
+
+    await fetch("http://localhost:5000/api/expenses/update-group", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ids,
+        oldCategory: category,
+        newCategory,
+        ratio,
+      }),
+    });
+
+    setEditing(null);
+    window.location.reload(); // safe + simple
+  };
+
+  return (
+    <>
+      <div className="space-y-3">
+        {Object.entries(grouped).map(([category, data], i) => (
+          <div
+            key={category}
+            className={`flex justify-between items-center p-4 rounded-xl ${
+              PASTEL_COLORS[i % PASTEL_COLORS.length]
+            }`}
+          >
+            <div>
+              <p className="font-medium">{category}</p>
+              <p className="text-sm text-gray-600">
+                ₹{data.total}
+              </p>
+            </div>
+
+            <button
+              onClick={() =>
+                setEditing({
+                  category,
+                  total: data.total,
+                  ids: data.ids,
+                })
+              }
+            >
+              <Pencil size={16} />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {editing && (
+        <EditExpenseGroupModal
+          category={editing.category}
+          total={editing.total}
+          onClose={() => setEditing(null)}
+          onSave={saveEdit}
+        />
+      )}
+    </>
   );
 }

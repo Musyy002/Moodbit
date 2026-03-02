@@ -12,7 +12,7 @@ import MoodbitChat from "../components/MoodbitChat";
 import IncomeExpenseChart from "../components/IncomeExpenseChart";
 import { aiForecast } from "@/utils/aiForecast";
 import { CalendarDays, Calendar, BarChart3 } from "lucide-react";
-
+import ForecastReportModal from "@/components/ForecastReportModal";
 
 import DashboardLayout from "../components/DashboardLayout";
 import Sidebar from "../components/Sidebar";
@@ -26,13 +26,10 @@ export default function Dashboard() {
 
   const [expenses, setExpenses] = useState([]);
   const [totalSpent, setTotalSpent] = useState(0);
-  const [forecast, setForecast] = useState({
-    weekly: null,
-    monthly: null,
-    yearly: null,
-    insight: "",
-    reliability: "",
-  });  
+  const [forecast, setForecast] = useState(null);
+  const [openReport, setOpenReport] = useState(false);
+  const [activeForecast, setActiveForecast] = useState(null);
+
   
   const [budget, setBudget] = useState(null);
   const [healthScore, setHealthScore] = useState(0);
@@ -157,32 +154,16 @@ export default function Dashboard() {
 
   //Forecast spending
   useEffect(() => {
-    if (!budget || expenses.length === 0) return;
-  
-    const budgetUsedRatio = totalSpent / budget;
-  
-    const shouldPredict =
-      expenses.length >= 5 || budgetUsedRatio >= 0.5;
-  
-    if (!shouldPredict) {
-      setForecast({
-        weekly: null,
-        monthly: null,
-        yearly: null,
-        insight: "Add more expenses to unlock AI predictions",
-        reliability: "Low",
-      });
-      return;
-    }
+    if (!expenses.length || !budget) return;
   
     const runForecast = async () => {
       const result = await aiForecast(expenses, budget);
-  
       setForecast(result);
     };
   
     runForecast();
-  }, [expenses, budget, totalSpent]);
+  }, [expenses, budget]);
+  
   
   
 
@@ -223,33 +204,63 @@ export default function Dashboard() {
 
         {/* Forecast */}
         {/* Forecast Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <ForecastCard
-            title="Weekly Forecast"
-            amount={forecast.weekly}
-            budget={budget ? budget / 4 : null}
-            insight={forecast.insight}
-            reliability={forecast.reliability}
-            icon={CalendarDays}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div onClick={() => {
+            setActiveForecast("weekly");
+            setOpenReport(true);
+          }}>
+            <ForecastCard
+              title="Weekly Forecast"
+              amount={forecast?.weekly}
+              budget={budget}
+              insight={forecast?.insight}
+              reliability={forecast?.reliability}
+              forecastData={forecast}
+              onOpenReport={() => {
+                setActiveForecast("weekly");
+                setOpenReport(true);
+              }}
+            />
 
-          <ForecastCard
-            title="Monthly Forecast"
-            amount={forecast.monthly}
-            budget={budget}
-            insight={forecast.insight}
-            reliability={forecast.reliability}
-            icon={Calendar}
-          />
+          </div>
 
-          <ForecastCard
-            title="Yearly Projection"
-            amount={forecast.yearly}
-            insight={forecast.insight}
-            reliability={forecast.reliability}
-            icon={BarChart3}
-          />
+          <div onClick={() => {
+            setActiveForecast("monthly");
+            setOpenReport(true);
+          }}>
+            <ForecastCard
+              title="Monthly Forecast"
+              amount={forecast?.monthly}
+              budget={budget}
+              insight={forecast?.insight}
+              reliability={forecast?.reliability}
+              forecastData={forecast}
+              onOpenReport={() => {
+                setActiveForecast("monthly");
+                setOpenReport(true);
+              }}
+            />
+          </div>
+
+          <div onClick={() => {
+            setActiveForecast("yearly");
+            setOpenReport(true);
+          }}>
+            <ForecastCard
+              title="Yearly Forecast"
+              amount={forecast?.yearly}
+              budget={budget}
+              insight={forecast?.insight}
+              reliability={forecast?.reliability}
+              forecastData={forecast}
+              onOpenReport={() => {
+                setActiveForecast("yearly");
+                setOpenReport(true);
+              }}
+            />
+          </div>
         </div>
+
 
         {/* Footer */}
         <footer className="text-center text-sm text-gray-400 pt-6">
@@ -264,6 +275,19 @@ export default function Dashboard() {
         healthScore={healthScore}
         mood={healthScore > 70 ? "happy" : "stressed"}
       />
+
+      {openReport && forecast && (
+        <ForecastReportModal
+          forecast={forecast}
+          budget={budget}
+          type={activeForecast}
+          onClose={() => setOpenReport(false)}
+        />
+      )}
+
     </DashboardLayout>
+
   );
+
 }
+
